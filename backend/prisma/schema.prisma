@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  role      Role      @default(STUDENT)
+  isBlocked Boolean   @default(false)
+  profile   UserProfile?
+  outletId  String?
+  outlet    Outlet?   @relation(fields: [outletId], references: [id])
+  orders    Order[]
+  penalties Penalty[]
+  reviews   Review[] // <-- ADD THIS
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model UserProfile {
+  id         String  @id @default(cuid())
+  name       String
+  rollNumber String?
+  class      String?
+  facultyId  String?
+  department String?
+  vendorId   String?
+  userId     String  @unique
+  user       User    @relation(fields: [userId], references: [id])
+}
+
+model Outlet {
+  id               String     @id @default(cuid())
+  name             String     @unique
+  description      String?
+  openingTime      DateTime?
+  closingTime      DateTime?
+  maxOrdersPerSlot Int        @default(20)
+  vendors          User[]
+  menuItems        MenuItem[]
+  orders           Order[]
+  reviews          Review[] // <-- ADD THIS
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model MenuItem {
+  id                 String      @id @default(cuid())
+  name               String
+  description        String?
+  price              Float
+  imageUrl           String?
+  category           ItemCategory? // <-- ADD THIS
+  isAvailable        Boolean     @default(true)
+  outletId           String
+  outlet             Outlet      @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  orderItems         OrderItem[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  razorpayOrderId String?     @unique
+  total           Float
+  status          OrderStatus @default(PENDING)
+  paymentMode     PaymentMode
+  slotTime        DateTime
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  outletId        String
+  outlet          Outlet      @relation(fields: [outletId], references: [id])
+  items           OrderItem[]
+  penalty         Penalty?
+  discountAmount  Float?
+  couponId        String?
+  coupon          Coupon?     @relation(fields: [couponId], references: [id])
+  review          Review? // <-- ADD THIS
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id                 String   @id @default(cuid())
+  quantity           Int
+  priceAtTimeOfOrder Float
+  orderId            String
+  order              Order    @relation(fields: [orderId], references: [id])
+  menuItemId         String
+  menuItem           MenuItem @relation(fields: [menuItemId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Penalty {
+  id              String        @id @default(cuid())
+  razorpayOrderId String?       @unique // <-- ADD THIS
+  amount          Float
+  status          PenaltyStatus @default(UNPAID)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  orderId         String        @unique
+  order           Order         @relation(fields: [orderId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Coupon {
+  id                 String   @id @default(cuid())
+  code               String   @unique
+  discountPercentage Int
+  isActive           Boolean  @default(true)
+  expiresAt          DateTime?
+  orders             Order[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// NEW MODEL
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  outletId  String
+  outlet    Outlet   @relation(fields: [outletId], references: [id])
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  actorName String
+  action    String   // e.g., "USER_ROLE_CHANGED"
+  targetId  String
+  details   Json?
+  createdAt DateTime @default(now())
+}
+
+// ... (All enums remain the same) ...
+enum Role {
+  STUDENT
+  FACULTY
+  VENDOR
+  ADMIN
+}
+
+enum MenuStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMode {
+  COD
+  PREPAID
+}
+
+enum PenaltyStatus {
+  UNPAID
+  PAID
+}
+
+enum ItemCategory {
+  VEG
+  NON_VEG
+  BEVERAGE
+  DESSERT
+  SNACK
+}
