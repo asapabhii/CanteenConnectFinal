@@ -30,7 +30,7 @@ export class UsersController {
   findAll(@Query('search') search?: string) {
     return this.usersService.findAll(search);
   }
-
+  
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @Get(':id')
@@ -41,29 +41,21 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @Patch(':id/role')
-  updateRole(
-    @Param('id') id: string,
-    @Body() dto: UpdateUserRoleDto,
-    @GetUser() adminUser: User,
-  ) {
-    return this.usersService.updateRole(id, dto.role, adminUser);
+  updateRole(@Param('id') id: string, @Body() dto: UpdateUserRoleDto) {
+    return this.usersService.updateRole(id, dto.role);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @Patch(':id/toggle-block')
-  toggleBlock(@Param('id') id: string, @GetUser() adminUser: User) {
-    return this.usersService.toggleBlock(id, adminUser);
+  toggleBlock(@Param('id') id: string) {
+    return this.usersService.toggleBlock(id);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @Patch(':id/assign-outlet')
-  assignOutlet(
-    @Param('id') id: string,
-    @Body() dto: AssignOutletDto,
-    @GetUser() adminUser: User,
-  ) {
-    return this.usersService.assignOutlet(id, dto.outletId, adminUser);
+  assignOutlet(@Param('id') id: string, @Body() dto: AssignOutletDto) {
+      return this.usersService.assignOutlet(id, dto.outletId);
   }
 }

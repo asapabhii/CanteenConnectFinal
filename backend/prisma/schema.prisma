@@ -137,15 +137,6 @@ model Review {
   updatedAt DateTime @updatedAt
 }
 
-model ActivityLog {
-  id        String   @id @default(cuid())
-  actorId   String
-  actorName String
-  action    String   // e.g., "USER_ROLE_CHANGED"
-  targetId  String
-  details   Json?
-  createdAt DateTime @default(now())
-}
 
 // ... (All enums remain the same) ...
 enum Role {

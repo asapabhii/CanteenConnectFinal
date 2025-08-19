@@ -23,7 +23,7 @@ import { UploadsModule } from './uploads/uploads.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { EventsModule } from './events/events.module';
 import { SearchModule } from './search/search.module';
-import { LogsModule } from './logs/logs.module';
+
 
 
 @Module({
@@ -53,7 +53,6 @@ import { LogsModule } from './logs/logs.module';
     ReviewsModule,
     EventsModule,
     SearchModule,
-    LogsModule,
   ],
   controllers: [AppController],
   providers: [

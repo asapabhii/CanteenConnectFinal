@@ -1,14 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
-import { LogsService } from 'src/logs/logs.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private prisma: PrismaService,
-    private logsService: LogsService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   findAll(searchQuery?: string) {
     return this.prisma.user.findMany({
@@ -51,45 +47,21 @@ export class UsersService {
     return user;
   }
 
-  async updateRole(id: string, role: Role, adminUser: User) {
-    const userToUpdate = await this.prisma.user.findUnique({ where: { id } });
-    if (!userToUpdate) throw new NotFoundException('User not found');
-
-    await this.logsService.logActivity({
-      actorId: adminUser.id,
-      actorName: adminUser.email,
-      action: 'USER_ROLE_CHANGED',
-      targetId: id,
-      details: { from: userToUpdate.role, to: role },
-    });
+  updateRole(id: string, role: Role) {
     return this.prisma.user.update({ where: { id }, data: { role } });
   }
 
-  async toggleBlock(id: string, adminUser: User) {
+  async toggleBlock(id: string) {
     const userToUpdate = await this.prisma.user.findUnique({ where: { id } });
     if (!userToUpdate) throw new NotFoundException('User not found');
-
-    await this.logsService.logActivity({
-      actorId: adminUser.id,
-      actorName: adminUser.email,
-      action: 'USER_BLOCK_TOGGLED',
-      targetId: id,
-      details: { isBlocked: !userToUpdate.isBlocked },
-    });
+    
     return this.prisma.user.update({
       where: { id },
       data: { isBlocked: !userToUpdate.isBlocked },
     });
   }
 
-  async assignOutlet(id: string, outletId: string | null, adminUser: User) {
-    await this.logsService.logActivity({
-      actorId: adminUser.id,
-      actorName: adminUser.email,
-      action: 'VENDOR_OUTLET_ASSIGNED',
-      targetId: id,
-      details: { outletId },
-    });
+  assignOutlet(id: string, outletId: string | null) {
     return this.prisma.user.update({ where: { id }, data: { outletId } });
   }
 }

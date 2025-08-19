@@ -4,7 +4,6 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import HistoryIcon from '@mui/icons-material/History';
 
 const drawerWidth = 240;
 
@@ -13,7 +12,6 @@ const navItems = [
   { text: 'Users', icon: <PeopleIcon />, path: '/admin/users' },
   { text: 'Outlets', icon: <StorefrontIcon />, path: '/admin/outlets' },
   { text: 'Orders', icon: <ShoppingCartIcon />, path: '/admin/orders' },
-  { text: 'Activity Log', icon: <HistoryIcon />, path: '/admin/activity-log' },
 ];
 
 export const DashboardLayout = () => {

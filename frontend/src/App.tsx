@@ -30,7 +30,6 @@ import { VendorEarningsPage } from './features/vendor/pages/VendorEarningsPage';
 import { VendorRatingsPage } from './features/vendor/pages/VendorRatingsPage';
 import { OrderManagementPage } from './features/admin/pages/OrderManagementPage';
 import { AdminOrderDetailPage } from './features/admin/pages/AdminOrderDetailPage';
-import { ActivityLogPage } from './features/admin/pages/ActivityLogPage';
 import { SignupPage } from './pages/SignupPage';
 
 
@@ -69,7 +68,6 @@ const AppRoutes = () => {
                 <Route path="outlets" element={<OutletManagementPage />} />
                 <Route path="orders" element={<OrderManagementPage />} />
                 <Route path="orders/:id" element={<AdminOrderDetailPage />} />
-                <Route path="activity-log" element={<ActivityLogPage />} />
                 </Route>
     
                 {/* Vendor Routes */}
