@@ -62,11 +62,7 @@ export class UsersService {
       targetId: id,
       details: { from: userToUpdate.role, to: role },
     });
-
-    return this.prisma.user.update({
-      where: { id },
-      data: { role },
-    });
+    return this.prisma.user.update({ where: { id }, data: { role } });
   }
 
   async toggleBlock(id: string, adminUser: User) {
@@ -80,7 +76,6 @@ export class UsersService {
       targetId: id,
       details: { isBlocked: !userToUpdate.isBlocked },
     });
-
     return this.prisma.user.update({
       where: { id },
       data: { isBlocked: !userToUpdate.isBlocked },
@@ -88,9 +83,6 @@ export class UsersService {
   }
 
   async assignOutlet(id: string, outletId: string | null, adminUser: User) {
-    const userToUpdate = await this.prisma.user.findUnique({ where: { id } });
-    if (!userToUpdate) throw new NotFoundException('User not found');
-
     await this.logsService.logActivity({
       actorId: adminUser.id,
       actorName: adminUser.email,
@@ -98,10 +90,6 @@ export class UsersService {
       targetId: id,
       details: { outletId },
     });
-
-    return this.prisma.user.update({
-      where: { id },
-      data: { outletId },
-    });
+    return this.prisma.user.update({ where: { id }, data: { outletId } });
   }
 }
