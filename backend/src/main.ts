@@ -1,16 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common'; // <-- IMPORT HERE
-import helmet from 'helmet'; // <-- IMPORT HERE
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet()); // <-- ADD THIS LINE
-  app.enableCors(); // <-- ADD THIS LINE
+  app.use(helmet());
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+  });
 
-   app.useGlobalPipes(new ValidationPipe()); // <-- ADD THIS LINE
+  app.useGlobalPipes(new ValidationPipe());
+  
+  // Vercel handles the port, so we only listen locally
+  if (process.env.NODE_ENV === 'development') {
+    await app.listen(3000);
+  }
 
-  await app.listen(process.env.PORT ?? 3000);
+  return app; // <-- Add this return statement
 }
-bootstrap();
+
+// Export the bootstrap function for Vercel
+export default bootstrap();
