@@ -13,12 +13,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   
-  // Vercel handles the port, so we only listen locally
-  if (process.env.NODE_ENV === 'development') {
-    await app.listen(3000);
-  }
-
-  return app; // <-- Add this return statement
+  // Vercel handles starting the server, we just need to bootstrap the app
+  await app.init();
+  return app;
 }
 
 // Export the bootstrap function for Vercel
