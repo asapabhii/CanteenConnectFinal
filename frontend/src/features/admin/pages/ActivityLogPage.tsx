@@ -1,33 +1,16 @@
-import { Box, Chip, CircularProgress, Typography } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid'; // Corrected import
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { useActivityLog } from '../../../api/logs';
 
 export const ActivityLogPage = () => {
   const { data: logs, isLoading } = useActivityLog();
 
-  // Removed the explicit : GridColDef[] type
   const columns = [
-    { 
-      field: 'createdAt', 
-      headerName: 'Timestamp', 
-      width: 200, 
-      type: 'dateTime', 
-      valueGetter: (p: any) => new Date(p.value) 
-    },
+    { field: 'createdAt', headerName: 'Timestamp', width: 200 },
     { field: 'actorName', headerName: 'Performed By', width: 200 },
-    { 
-      field: 'action', 
-      headerName: 'Action', 
-      width: 200, 
-      renderCell: (p: any) => <Chip label={p.value} size="small"/> 
-    },
+    { field: 'action', headerName: 'Action', width: 200 },
     { field: 'targetId', headerName: 'Target ID', width: 250 },
-    { 
-      field: 'details', 
-      headerName: 'Details', 
-      flex: 1, 
-      valueGetter: (p: any) => JSON.stringify(p.value) 
-    },
+    { field: 'details', headerName: 'Details', flex: 1 },
   ];
 
   return (

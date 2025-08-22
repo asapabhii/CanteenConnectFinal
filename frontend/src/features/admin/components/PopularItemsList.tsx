@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Paper, Typography, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { CircularProgress, Paper, Typography, List, ListItem, ListItemText } from '@mui/material';
 import { useTopItems } from '../../../api/analytics';
 
 export const PopularItemsList = () => {

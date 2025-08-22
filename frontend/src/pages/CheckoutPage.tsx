@@ -8,6 +8,12 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useVerifyPayment } from '../api/payments';
 import { AnimatedPage } from '../components/common/AnimatedPage';
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 export const CheckoutPage = () => {
   const { items, getTotalPrice, removeAllItems } = useCartStore();
   const user = useAuthStore((state) => state.user);
@@ -52,7 +58,7 @@ export const CheckoutPage = () => {
             name: "Christ Canteen Connect",
             description: `Order #${data.id.slice(-6)}`,
             order_id: data.razorpayOrderDetails.id,
-            handler: function (response: any) {
+            handler: function (response: RazorpayResponse) {
               verifyPaymentMutation.mutate({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -77,14 +83,14 @@ export const CheckoutPage = () => {
             }
           };
           const rzp = new window.Razorpay(options);
-          rzp.on('payment.failed', function (response: any){
+          rzp.on('payment.failed', function (){
                 alert('Payment failed. Please try again.');
           });
           rzp.open();
         }
       },
-      onError: (error: any) => {
-        const errorMsg = error.response?.data?.message || 'Failed to place order';
+      onError: (error: unknown) => {
+        const errorMsg = error instanceof Error ? error.message : 'Failed to place order';
         alert(`Error: ${errorMsg}`);
       }
     });
@@ -127,7 +133,7 @@ export const CheckoutPage = () => {
           <RadioGroup
             row
             value={paymentMode}
-            onChange={(e) => setPaymentMode(e.target.value as any)}
+            onChange={(e) => setPaymentMode(e.target.value as 'COD' | 'PREPAID')}
           >
             <FormControlLabel value="COD" control={<Radio />} label="Cash on Delivery" />
             <FormControlLabel value="PREPAID" control={<Radio />} label="Pay Online" />

@@ -3,6 +3,18 @@ import { useVendorReviews } from '../../../api/reviews';
 import { useMemo } from 'react';
 import { StatCard } from '../../admin/components/StatCard';
 
+interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  user: {
+    profile?: {
+      name: string;
+    };
+  };
+}
+
 export const VendorRatingsPage = () => {
   const { data: reviews, isLoading } = useVendorReviews();
 
@@ -11,7 +23,7 @@ export const VendorRatingsPage = () => {
       return { averageRating: 0, totalRatings: 0 };
     }
     const totalRatings = reviews.length;
-    const sumOfRatings = reviews.reduce((acc: number, review: any) => acc + review.rating, 0);
+    const sumOfRatings = reviews.reduce((acc: number, review: Review) => acc + review.rating, 0);
     const averageRating = sumOfRatings / totalRatings;
     return { averageRating, totalRatings };
   }, [reviews]);
@@ -23,16 +35,16 @@ export const VendorRatingsPage = () => {
       <Typography variant="h4" gutterBottom>Ratings & Feedback</Typography>
       
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
             <StatCard title="Average Rating" value={`${stats.averageRating.toFixed(1)} / 5`} />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
             <StatCard title="Total Ratings Received" value={stats.totalRatings} />
         </Grid>
       </Grid>
 
       <Stack spacing={2}>
-        {reviews?.map((review: any) => (
+        {reviews?.map((review: Review) => (
             <Card key={review.id} variant="outlined">
                 <CardContent>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{mb: 1}}>

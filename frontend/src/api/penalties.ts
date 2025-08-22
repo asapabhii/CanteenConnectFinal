@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import apiClient from './apiClient';
-import { useVerifyPayment } from './payments'; // <-- ADD THIS IMPORT
+import { useVerifyPayment } from './payments';
 
 const fetchUnpaidPenalties = async () => {
   const { data } = await apiClient.get('/payments/my-penalties');

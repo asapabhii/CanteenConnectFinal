@@ -4,6 +4,11 @@ import React, { useMemo, useState } from 'react';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useUsers } from '../../../api/users';
 
+interface User {
+  id: string;
+  role: string;
+}
+
 export const UserManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -11,7 +16,7 @@ export const UserManagementPage = () => {
   const [roleFilter, setRoleFilter] = useState('ALL');
   const { data: users, isLoading } = useUsers(debouncedSearchTerm);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setRoleFilter(newValue);
   };
 
@@ -19,7 +24,7 @@ export const UserManagementPage = () => {
   const filteredUsers = useMemo(() => {
     if (!users) return [];
     if (roleFilter === 'ALL') return users;
-    return users.filter((user: any) => user.role === roleFilter);
+    return users.filter((user: User) => user.role === roleFilter);
   }, [users, roleFilter]);
 
   return (

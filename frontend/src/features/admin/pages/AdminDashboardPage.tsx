@@ -17,22 +17,22 @@ export const AdminDashboardPage = () => {
           <CircularProgress />
         ) : (
           <Grid container spacing={3}>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <StatCard title="Today's Orders (Count)" value={stats?.todaysOrdersCount} />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <StatCard title="Today's Orders (Value)" value={`₹${stats?.todaysOrdersValue.toFixed(2)}`} />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <StatCard title="Total Revenue (All Time)" value={`₹${stats?.totalRevenue.toFixed(2)}`} />
             </Grid>
-            <Grid xs={12} sm={6} md={3}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 6', md: 'span 3' } }}>
               <StatCard title="Pending Orders" value={stats?.pendingOrders} />
             </Grid>
-            <Grid xs={12} md={8}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 8' } }}>
                 <SalesChart />
             </Grid>
-            <Grid xs={12} md={4}>
+            <Grid sx={{ gridColumn: { xs: 'span 12', md: 'span 4' } }}>
               <PopularItemsList />
             </Grid>
           </Grid>

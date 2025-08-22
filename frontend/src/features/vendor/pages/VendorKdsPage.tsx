@@ -7,6 +7,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../../store/useAuthStore';
 import toast from 'react-hot-toast';
 
+interface Order {
+  id: string;
+  outletId: string;
+}
+
 export const VendorKdsPage = () => {
   const { data: orders, isLoading } = useKitchenOrders();
   const socket = useSocket();
@@ -18,7 +23,7 @@ export const VendorKdsPage = () => {
       socket.emit('joinOutletRoom', user.outletId);
 
       // Handler for when a new order comes in
-      const handleNewOrder = (newOrder: any) => {
+      const handleNewOrder = (newOrder: Order) => {
         // Only trigger for the correct outlet
         if (newOrder.outletId === user.outletId) {
           toast.success('New Order Received!', { duration: 5000 });
@@ -55,8 +60,8 @@ export const VendorKdsPage = () => {
         <Typography>No orders to prepare right now.</Typography>
       )}
       <Grid container spacing={2}>
-        {orders?.map((order: any) => (
-          <Grid item key={order.id} xs={12} sm={6} md={4}>
+        {orders?.map((order: Order) => (
+          <Grid key={order.id} size={{ xs: 12, sm: 6, md: 4 }}>
             <KitchenOrderCard order={order} />
           </Grid>
         ))}

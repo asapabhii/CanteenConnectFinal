@@ -1,6 +1,12 @@
-import { Box, Card, CardContent, Chip, CircularProgress, Divider, Grid, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Chip, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useUser } from '../../../api/users';
+
+interface Order {
+  id: string;
+  total: number;
+  status: string;
+}
 
 export const UserDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,7 +22,7 @@ export const UserDetailPage = () => {
       </Typography>
       <Grid container spacing={3}>
         {/* Profile Card */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h6">{user.profile?.name || 'N/A'}</Typography>
@@ -28,10 +34,10 @@ export const UserDetailPage = () => {
         </Grid>
 
         {/* Order History */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Typography variant="h6" gutterBottom>Order History ({user.orders.length})</Typography>
           <Stack spacing={2}>
-            {user.orders.map((order: any) => (
+            {user.orders.map((order: Order) => (
               <Card key={order.id} variant="outlined">
                 <CardContent>
                   <Typography>ID: {order.id}</Typography>

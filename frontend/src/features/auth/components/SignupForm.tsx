@@ -7,7 +7,6 @@ import apiClient from '../../../api/apiClient';
 
 export const SignupForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', rollNumber: '' });
-  const setToken = useAuthStore((state) => state.setToken);
   const navigate = useNavigate();
   const signupMutation = useSignup();
 
@@ -33,8 +32,9 @@ export const SignupForm = () => {
         // Navigate to the main app
         navigate('/');
       },
-      onError: (error: any) => {
-        alert(`Signup Failed: ${error.response?.data?.message || error.message}`);
+      onError: (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`Signup Failed: ${errorMessage}`);
       },
     });
   };

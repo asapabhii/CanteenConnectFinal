@@ -9,7 +9,6 @@ export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const setToken = useAuthStore((state) => state.setToken);
   const navigate = useNavigate();
 
   const loginMutation = useLogin();

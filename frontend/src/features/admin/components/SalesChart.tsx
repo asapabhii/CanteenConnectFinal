@@ -1,6 +1,6 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
 import { useSalesChartData } from '../../../api/analytics';
-import { Box, CircularProgress, Paper, Typography } from '@mui/material';
+import { CircularProgress, Paper, Typography } from '@mui/material';
 import { format, parseISO } from 'date-fns';
 
 export const SalesChart = () => {

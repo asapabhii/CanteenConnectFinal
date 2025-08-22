@@ -1,6 +1,7 @@
-import { Box, CircularProgress, Tooltip } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
-import { useUsers, useToggleUserBlock } from '../../../api/users';
+import type { GridColDef } from '@mui/x-data-grid';
+import { useToggleUserBlock } from '../../../api/users';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -8,10 +9,37 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EditUserModal } from './EditUserModal';
 
-export const UsersTable = ({ users, isLoading }: { users: any[]; isLoading: boolean }) => {
+const Role = {
+  STUDENT: 'STUDENT',
+  FACULTY: 'FACULTY',
+  VENDOR: 'VENDOR',
+  ADMIN: 'ADMIN',
+} as const;
+
+type Role = typeof Role[keyof typeof Role];
+
+interface User {
+  id: string;
+  email: string;
+  role: Role;
+  isBlocked: boolean;
+  profile?: {
+    name: string;
+    rollNumber?: string;
+    facultyId?: string;
+    vendorId?: string;
+  };
+}
+
+interface UserRow extends User {
+  name: string;
+  identifier: string;
+}
+
+export const UsersTable = ({ users, isLoading }: { users: User[]; isLoading: boolean }) => {
   const navigate = useNavigate();
   const toggleBlockMutation = useToggleUserBlock();
-  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const handleToggleBlock = (id: string) => {
     toggleBlockMutation.mutate(id);
@@ -19,22 +47,22 @@ export const UsersTable = ({ users, isLoading }: { users: any[]; isLoading: bool
 
   const rows = useMemo(() => {
     if (!users) return [];
-    return users.map((user: any) => ({
+    return users.map((user: User) => ({
       ...user, // Pass the full user object to the row
       id: user.id,
       name: user.profile?.name || 'N/A',
       identifier:
         user.role === 'STUDENT'
-          ? user.profile?.rollNumber
+          ? user.profile?.rollNumber || 'N/A'
           : user.role === 'FACULTY'
-          ? user.profile?.facultyId
+          ? user.profile?.facultyId || 'N/A'
           : user.role === 'VENDOR'
-          ? user.profile?.vendorId
+          ? user.profile?.vendorId || 'N/A'
           : 'N/A',
     }));
   }, [users]);
 
-  const columns = [
+  const columns: GridColDef<UserRow>[] = [
     { field: 'id', headerName: 'User ID', width: 220 },
     { field: 'identifier', headerName: 'Roll No / Faculty ID', width: 180 },
     { field: 'name', headerName: 'Name', width: 180 },
@@ -45,7 +73,7 @@ export const UsersTable = ({ users, isLoading }: { users: any[]; isLoading: bool
       type: 'actions',
       headerName: 'Actions',
       width: 100,
-      getActions: ({ row }: any) => [
+      getActions: ({ row }: { row: UserRow }) => [
         <GridActionsCellItem
           key="edit"
           icon={<Tooltip title="Edit Role & Assign"><EditIcon /></Tooltip>}

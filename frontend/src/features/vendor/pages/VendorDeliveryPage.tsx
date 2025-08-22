@@ -1,5 +1,6 @@
 import { Box, Button, Chip, CircularProgress, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import type { GridColDef, GridActionsColDef } from '@mui/x-data-grid';
 import { useDeliveryOrders, useUpdateOrderStatus } from '../../../api/delivery';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
@@ -10,10 +11,21 @@ import { useSocket } from '../../../context/SocketContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../../store/useAuthStore';
 
+interface Order {
+  id: string;
+  user: {
+    email: string;
+    profile?: {
+      name: string;
+    };
+  };
+  status: string;
+}
+
 export const VendorDeliveryPage = () => {
   const { data: orders, isLoading } = useDeliveryOrders();
   const updateStatusMutation = useUpdateOrderStatus();
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const socket = useSocket();
   const queryClient = useQueryClient();
@@ -42,23 +54,26 @@ export const VendorDeliveryPage = () => {
     updateStatusMutation.mutate({ orderId, status });
   };
 
-  const columns = [
+    const columns: (GridColDef<Order> | GridActionsColDef<Order>)[] = [
     {
       field: 'id',
       headerName: 'Order ID',
       width: 150,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       renderCell: (params: any) => params.value.slice(-6).toUpperCase(),
     },
     {
       field: 'user',
       headerName: 'Customer',
       width: 200,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       valueGetter: (params: any) => params.value?.profile?.name || params.value?.email,
     },
     {
       field: 'status',
       headerName: 'Status',
       width: 180,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       renderCell: (params: any) => (
         <Chip
           label={params.value.replace(/_/g, ' ')}
@@ -72,7 +87,7 @@ export const VendorDeliveryPage = () => {
       type: 'actions',
       headerName: 'Actions',
       width: 300,
-      getActions: ({ row }: any) => {
+      getActions: ({ row }) => {
         const actions = [
           <Button
             key="view"

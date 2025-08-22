@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CircularProgress, Container, Grid, TextField, Typography } from '@mui/material';
+import { Box, Card, CardContent, CircularProgress, Container, TextField, Typography } from '@mui/material';
 import { OutletList } from '../features/outlets/components/OutletList';
 import { useState } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
@@ -6,21 +6,40 @@ import { useSearch } from '../api/search';
 import { Link } from 'react-router-dom';
 import { AnimatedPage } from '../components/common/AnimatedPage';
 
-const SearchResults = ({ results, isLoading }: { results: any, isLoading: boolean}) => {
+interface OutletSearchResult {
+  id: string;
+  name: string;
+}
+
+interface MenuItemSearchResult {
+  id: string;
+  name: string;
+  outletId: string;
+  outlet: {
+    name: string;
+  };
+}
+
+interface SearchResultsData {
+  outlets: OutletSearchResult[];
+  menuItems: MenuItemSearchResult[];
+}
+
+const SearchResults = ({ results, isLoading }: { results: SearchResultsData | null, isLoading: boolean}) => {
     if (isLoading) return <CircularProgress />;
     if (!results) return null;
 
     return (
       <Box>
         {results.outlets.length > 0 && <Typography variant="h5" sx={{my: 2}}>Matching Outlets</Typography>}
-        {results.outlets.map((outlet: any) => (
+        {results.outlets.map((outlet: OutletSearchResult) => (
             <Box key={outlet.id} sx={{mb: 1}}>
                 <Typography component={Link} to={`/outlets/${outlet.id}`}>{outlet.name}</Typography>
             </Box>
         ))}
         
         {results.menuItems.length > 0 && <Typography variant="h5" sx={{my: 2}}>Matching Menu Items</Typography>}
-        {results.menuItems.map((item: any) => (
+        {results.menuItems.map((item: MenuItemSearchResult) => (
             <Card key={item.id} variant="outlined" sx={{mb: 1}}>
                 <CardContent>
                     <Typography variant="h6">{item.name}</Typography>

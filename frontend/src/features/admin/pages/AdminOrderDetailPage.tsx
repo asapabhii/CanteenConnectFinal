@@ -1,6 +1,15 @@
-import { Box, Card, CardContent, Chip, CircularProgress, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, CircularProgress, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useAdminOrder, useAdminUpdateOrderStatus } from '../../../api/orders';
+
+interface OrderItem {
+  id: string;
+  quantity: number;
+  priceAtTimeOfOrder: number;
+  menuItem: {
+    name: string;
+  };
+}
 
 export const AdminOrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,12 +27,12 @@ export const AdminOrderDetailPage = () => {
     <Box>
       <Typography variant="h4" gutterBottom>Order Details (#{order.id.slice(-6).toUpperCase()})</Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card>
             <CardContent>
                 <Typography variant="h6">Items</Typography>
                 <Stack divider={<Divider />} spacing={1} sx={{mt: 1}}>
-                    {order.items.map((item: any) => (
+                    {order.items.map((item: OrderItem) => (
                         <Box key={item.id} sx={{display: 'flex', justifyContent: 'space-between'}}>
                             <Typography>{item.quantity} x {item.menuItem.name}</Typography>
                             <Typography>₹{item.priceAtTimeOfOrder.toFixed(2)}</Typography>
@@ -35,7 +44,7 @@ export const AdminOrderDetailPage = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>Manage Order</Typography>

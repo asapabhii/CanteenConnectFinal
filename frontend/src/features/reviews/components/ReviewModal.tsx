@@ -2,7 +2,14 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Rating, Stac
 import { useState } from 'react';
 import { useCreateReview } from '../../../api/reviews';
 
-export const ReviewModal = ({ order, onClose }: { order: any; onClose: () => void }) => {
+interface Order {
+  id: string;
+  outlet: {
+    name: string;
+  };
+}
+
+export const ReviewModal = ({ order, onClose }: { order: Order | null; onClose: () => void }) => {
   const [rating, setRating] = useState<number | null>(5);
   const [comment, setComment] = useState('');
   const createReviewMutation = useCreateReview();
@@ -23,8 +30,9 @@ export const ReviewModal = ({ order, onClose }: { order: any; onClose: () => voi
         alert('Thank you for your feedback!');
         onClose();
       },
-      onError: (error: any) => {
-        alert(`Failed to submit review: ${error.response?.data?.message || error.message}`);
+      onError: (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        alert(`Failed to submit review: ${errorMessage}`);
       }
     });
   };
@@ -37,7 +45,7 @@ export const ReviewModal = ({ order, onClose }: { order: any; onClose: () => voi
           <Rating 
             name="rating" 
             value={rating} 
-            onChange={(event, newValue) => { setRating(newValue); }}
+            onChange={(_, newValue) => { setRating(newValue); }}
             size="large"
           />
           <TextField

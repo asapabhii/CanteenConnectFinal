@@ -3,14 +3,31 @@ import { useEffect, useState } from 'react';
 import { useUpdateUserRole, useAssignOutlet } from '../../../api/users';
 import { useOutlets } from '../../../api/outlets';
 
-enum Role {
-  STUDENT = 'STUDENT',
-  FACULTY = 'FACULTY',
-  VENDOR = 'VENDOR',
-  ADMIN = 'ADMIN',
+const Role = {
+  STUDENT: 'STUDENT',
+  FACULTY: 'FACULTY',
+  VENDOR: 'VENDOR',
+  ADMIN: 'ADMIN',
+} as const;
+
+type Role = typeof Role[keyof typeof Role];
+
+interface User {
+  id: string;
+  email: string;
+  role: Role;
+  outletId?: string;
+  profile?: {
+    name: string;
+  };
 }
 
-export const EditUserModal = ({ user, onClose }: { user: any; onClose: () => void }) => {
+interface Outlet {
+  id: string;
+  name: string;
+}
+
+export const EditUserModal = ({ user, onClose }: { user: User | null; onClose: () => void }) => {
   const [role, setRole] = useState<Role>(user?.role || Role.STUDENT);
   const [outletId, setOutletId] = useState(user?.outletId || '');
 
@@ -26,6 +43,8 @@ export const EditUserModal = ({ user, onClose }: { user: any; onClose: () => voi
   }, [user]);
 
   const handleSave = () => {
+    if (!user) return;
+    
     if (user.role !== role) {
       updateUserRole.mutate({ userId: user.id, role });
     }
@@ -58,7 +77,7 @@ export const EditUserModal = ({ user, onClose }: { user: any; onClose: () => voi
             <InputLabel>Assign Outlet</InputLabel>
             <Select value={outletId} label="Assign Outlet" onChange={(e) => setOutletId(e.target.value)}>
                 <MenuItem value=""><em>None</em></MenuItem>
-                {outlets?.map((outlet: any) => (
+                {outlets?.map((outlet: Outlet) => (
                     <MenuItem key={outlet.id} value={outlet.id}>{outlet.name}</MenuItem>
                 ))}
             </Select>

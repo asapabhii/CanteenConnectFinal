@@ -1,27 +1,28 @@
-import { Box, Button, Card, CardContent, CircularProgress, Container, Typography } from '@mui/material';
+import { Button, Card, CardContent, CircularProgress, Container, Typography } from '@mui/material';
 import { useUnpaidPenalties, useCreatePenaltyPayment, useVerifyPenaltyPayment } from '../api/penalties';
 import { useAuthStore } from '../store/useAuthStore';
+import apiClient from '../api/apiClient';
 
 export const PayPenaltyPage = () => {
     const { data: penalties, isLoading } = useUnpaidPenalties();
     const createPaymentMutation = useCreatePenaltyPayment();
     const verifyPaymentMutation = useVerifyPenaltyPayment();
-    const { user, setToken } = useAuthStore();
+    const { setToken } = useAuthStore();
 
-    const handlePay = (penalty: any) => {
+    const handlePay = (penalty: { id: string; amount: number; orderId: string }) => {
         createPaymentMutation.mutate(penalty.id, {
             onSuccess: (razorpayOrder) => {
                 const options = {
-                    key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your key
+                    key: 'rzp_test_qhJBblcOzeuVwB', // Replace with your key
                     amount: razorpayOrder.amount,
                     order_id: razorpayOrder.id,
                     name: "Pay Penalty - Christ Canteen",
-                    handler: (response: any) => {
+                    handler: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
                         verifyPaymentMutation.mutate({ ...response }, {
                             onSuccess: () => {
                                 alert('Payment successful! Your account is now unblocked.');
                                 // Refetch user profile to update block status
-                                apiClient.get('/users/me').then(res => setToken(useAuthStore.getState().token!, res.data));
+                                apiClient.get('/users/me').then((res: { data: { token: string } }) => setToken(useAuthStore.getState().token!, res.data));
                             }
                         })
                     }
@@ -46,7 +47,7 @@ export const PayPenaltyPage = () => {
     <Container sx={{py: 4}}>
         <Typography variant="h4" color="error" gutterBottom>Account Blocked</Typography>
         <Typography>You have unpaid penalties. Please pay them to continue ordering.</Typography>
-        {penalties.map((penalty: any) => (
+        {penalties.map((penalty: { id: string; amount: number; orderId: string }) => (
             <Card key={penalty.id} sx={{mt: 2}}>
                 <CardContent>
                     <Typography>Amount: ₹{penalty.amount}</Typography>

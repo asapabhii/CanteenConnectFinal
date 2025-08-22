@@ -16,15 +16,14 @@ export const VendorEarningsPage = () => {
       field: 'createdAt',
       headerName: 'Date',
       width: 200,
-      type: 'dateTime',
-      valueGetter: (params: any) => new Date(params.value),
+      valueGetter: (params: { value: string }) => new Date(params.value),
     },
     { field: 'paymentMode', headerName: 'Payment Mode', width: 150 },
     { field: 'total', headerName: 'Amount (₹)', width: 150 },
   ];
 
-  const codSales = data?.breakdown.find((b: any) => b.paymentMode === 'COD')?._sum.total || 0;
-  const prepaidSales = data?.breakdown.find((b: any) => b.paymentMode === 'PREPAID')?._sum.total || 0;
+  const codSales = data?.breakdown.find((b: { paymentMode: string }) => b.paymentMode === 'COD')?._sum.total || 0;
+  const prepaidSales = data?.breakdown.find((b: { paymentMode: string }) => b.paymentMode === 'PREPAID')?._sum.total || 0;
 
   return (
     <Box>
@@ -39,10 +38,10 @@ export const VendorEarningsPage = () => {
       ) : (
         <>
           <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={3}><StatCard title="Total Revenue" value={`₹${data?.totalRevenue.toFixed(2)}`} /></Grid>
-            <Grid item xs={12} sm={3}><StatCard title="Total Orders" value={data?.totalOrders} /></Grid>
-            <Grid item xs={12} sm={3}><StatCard title="COD Sales" value={`₹${codSales.toFixed(2)}`} /></Grid>
-            <Grid item xs={12} sm={3}><StatCard title="Prepaid Sales" value={`₹${prepaidSales.toFixed(2)}`} /></Grid>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 3' } }}><StatCard title="Total Revenue" value={`₹${data?.totalRevenue.toFixed(2)}`} /></Grid>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 3' } }}><StatCard title="Total Orders" value={data?.totalOrders} /></Grid>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 3' } }}><StatCard title="COD Sales" value={`₹${codSales.toFixed(2)}`} /></Grid>
+            <Grid sx={{ gridColumn: { xs: 'span 12', sm: 'span 3' } }}><StatCard title="Prepaid Sales" value={`₹${prepaidSales.toFixed(2)}`} /></Grid>
           </Grid>
 
           <Typography variant="h5" gutterBottom>Completed Orders List</Typography>

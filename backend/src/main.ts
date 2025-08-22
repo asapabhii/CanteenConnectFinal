@@ -8,13 +8,19 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   });
 
   app.useGlobalPipes(new ValidationPipe());
   
-  // Vercel handles starting the server, we just need to bootstrap the app
-  await app.init();
+  // For local development, we need to listen on a port
+  if (process.env.NODE_ENV !== 'production') {
+    await app.listen(3000);
+    console.log('Server running on http://localhost:3000');
+  } else {
+    // Vercel handles starting the server, we just need to bootstrap the app
+    await app.init();
+  }
   return app;
 }
 

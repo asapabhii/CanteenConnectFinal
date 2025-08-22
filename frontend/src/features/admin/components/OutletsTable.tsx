@@ -1,30 +1,52 @@
-import { Box, Chip, CircularProgress, Tooltip } from '@mui/material';
+import { Box, CircularProgress, Tooltip } from '@mui/material';
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
+import type { GridColDef } from '@mui/x-data-grid';
 import { useOutlets } from '../../../api/outlets';
 import EditIcon from '@mui/icons-material/Edit';
 import { useMemo, useState } from 'react';
 import { EditOutletModal } from './EditOutletModal';
 
+interface Vendor {
+  id: string;
+  email: string;
+  profile?: {
+    name: string;
+  };
+}
+
+interface Outlet {
+  id: string;
+  name: string;
+  vendors: Vendor[];
+  _count: {
+    orders: number;
+  };
+}
+
+interface OutletRow {
+  id: string;
+  name: string;
+  vendors: string;
+  orders: number;
+  fullOutlet: Outlet;
+}
+
 export const OutletsTable = () => {
   const { data: outlets, isLoading } = useOutlets();
-  const [editingOutlet, setEditingOutlet] = useState<any | null>(null);
+  const [editingOutlet, setEditingOutlet] = useState<Outlet | null>(null);
 
-  // ** NEW: Transform the data into a flat structure **
   const rows = useMemo(() => {
     if (!outlets) return [];
-    return outlets.map((outlet: any) => ({
+    return outlets.map((outlet: Outlet) => ({
       id: outlet.id,
       name: outlet.name,
-      // Flatten the vendors array into a comma-separated string
-      vendors: outlet.vendors.map((v: any) => v.profile?.name || v.email).join(', '),
-      // Get the order count from the nested _count object
+      vendors: outlet.vendors.map((v: Vendor) => v.profile?.name || v.email).join(', '),
       orders: outlet._count.orders,
-      // Pass the full original object for the edit modal
       fullOutlet: outlet, 
     }));
   }, [outlets]);
 
-  const columns = [
+  const columns: GridColDef<OutletRow>[] = [
     { field: 'name', headerName: 'Outlet Name', width: 200 },
     { field: 'vendors', headerName: 'Vendors', width: 250 },
     { field: 'orders', headerName: 'Total Orders', width: 120 },
@@ -33,7 +55,7 @@ export const OutletsTable = () => {
       type: 'actions',
       headerName: 'Actions',
       width: 100,
-      getActions: ({ row }: any) => [
+      getActions: ({ row }) => [
         <GridActionsCellItem
           key="edit"
           icon={<Tooltip title="Edit Outlet"><EditIcon /></Tooltip>}

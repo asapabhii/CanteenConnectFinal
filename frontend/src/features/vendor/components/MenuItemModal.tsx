@@ -5,15 +5,24 @@ import { useUploadImage } from '../../../api/uploads';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 // Define categories on the frontend
-enum ItemCategory {
-  VEG = 'VEG',
-  NON_VEG = 'NON_VEG',
-  BEVERAGE = 'BEVERAGE',
-  DESSERT = 'DESSERT',
-  SNACK = 'SNACK',
+const ItemCategory = {
+  VEG: 'VEG',
+  NON_VEG: 'NON_VEG',
+  BEVERAGE: 'BEVERAGE',
+  DESSERT: 'DESSERT',
+  SNACK: 'SNACK',
+} as const;
+
+interface MenuItemData {
+  id?: string;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  category?: string;
 }
 
-export const MenuItemModal = ({ isOpen, onClose, initialData }: { isOpen: boolean; onClose: () => void; initialData?: any }) => {
+export const MenuItemModal = ({ isOpen, onClose, initialData }: { isOpen: boolean; onClose: () => void; initialData?: MenuItemData }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -44,7 +53,7 @@ export const MenuItemModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
     }
   }, [initialData, isOpen]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: name === 'price' ? Number(value) : value }));
   };
@@ -70,7 +79,7 @@ export const MenuItemModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
 
   const handleSave = () => {
     const mutationData = { ...formData };
-    if (initialData) {
+    if (initialData && initialData.id) {
       updateMutation.mutate({ itemId: initialData.id, data: mutationData }, { onSuccess: onClose });
     } else {
       createMutation.mutate(mutationData, { onSuccess: onClose });
@@ -93,7 +102,7 @@ export const MenuItemModal = ({ isOpen, onClose, initialData }: { isOpen: boolea
             <Select
               labelId="category-select-label"
               name="category"
-              value={formData.category}
+              value={formData.category || ''}
               label="Category"
               onChange={handleChange}
             >

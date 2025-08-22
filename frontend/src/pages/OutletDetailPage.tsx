@@ -5,14 +5,22 @@ import { MenuItemCard } from '../features/menu/components/MenuItemCard';
 import { useState } from 'react';
 import { AnimatedPage } from '../components/common/AnimatedPage';
 
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  outletId: string;
+}
+
 export const OutletDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [category, setCategory] = useState<string | undefined>(undefined);
-  const { data: outlet, isLoading, isError } = useOutlet(id!, category);
+  const [category, setCategory] = useState<string>('');
+  const { data: outlet, isLoading, isError } = useOutlet(id!, category || undefined);
 
   const handleCategoryChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newCategory: string | undefined,
+    _: React.MouseEvent<HTMLElement>,
+    newCategory: string,
   ) => {
     setCategory(newCategory);
   };
@@ -31,14 +39,14 @@ export const OutletDetailPage = () => {
           onChange={handleCategoryChange}
           sx={{mb: 2}}
         >
-          <ToggleButton value={undefined}>All</ToggleButton>
+          <ToggleButton value="">All</ToggleButton>
           <ToggleButton value="VEG">Veg</ToggleButton>
           <ToggleButton value="NON_VEG">Non-Veg</ToggleButton>
           <ToggleButton value="BEVERAGE">Beverages</ToggleButton>
         </ToggleButtonGroup>
 
         <Typography variant="h5" gutterBottom>Menu</Typography>
-        {outlet.menuItems?.map((item: any) => (
+        {outlet.menuItems?.map((item: MenuItem) => (
           <Box key={item.id} sx={{mb: 2}}>
               <MenuItemCard item={item} />
           </Box>
