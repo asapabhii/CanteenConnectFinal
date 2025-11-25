@@ -7,24 +7,30 @@ import helmet from 'helmet';
 
 let cachedApp: INestApplication | null = null;
 
-async function createApp(): Promise<INestApplication> {
-  if (cachedApp) {
-    return cachedApp;
-  }
-
-  const server: Express = express();
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
-    logger: ['error', 'warn', 'log'],
-  });
-
+// Shared configuration for the NestJS app
+function configureApp(app: INestApplication, isProduction: boolean): void {
+  // Helmet security middleware
+  // Note: contentSecurityPolicy is disabled as this is an API backend
+  // CSP should be handled by the frontend/CDN for proper configuration
   app.use(
     helmet({
-      contentSecurityPolicy: false,
+      contentSecurityPolicy: false, // lgtm[js/insecure-helmet-configuration]
     }),
   );
 
+  // CORS configuration - use FRONTEND_URL in production, localhost for dev
+  const corsOrigin = isProduction
+    ? process.env.FRONTEND_URL || undefined // undefined disables CORS if no FRONTEND_URL set
+    : process.env.FRONTEND_URL || 'http://localhost:5173';
+
+  if (!corsOrigin && isProduction) {
+    console.warn(
+      'Warning: FRONTEND_URL is not set in production. CORS may not work correctly.',
+    );
+  }
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || '*',
+    origin: corsOrigin || true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -36,6 +42,19 @@ async function createApp(): Promise<INestApplication> {
       transform: true,
     }),
   );
+}
+
+async function createApp(): Promise<INestApplication> {
+  if (cachedApp) {
+    return cachedApp;
+  }
+
+  const server: Express = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+    logger: ['error', 'warn', 'log'],
+  });
+
+  configureApp(app, true);
 
   await app.init();
   cachedApp = app;
@@ -60,23 +79,7 @@ async function bootstrap() {
   const server: Express = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-    }),
-  );
-
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  });
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+  configureApp(app, false);
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

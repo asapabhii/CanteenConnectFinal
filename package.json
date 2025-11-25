@@ -11,7 +11,7 @@
     "lint:backend": "cd backend && npm run lint",
     "lint:frontend": "cd frontend && npm run lint",
     "lint": "npm run lint:backend && npm run lint:frontend",
-    "test": "cd backend && npm run test"
+    "test:backend": "cd backend && npm run test"
   },
   "engines": {
     "node": ">=18.0.0"

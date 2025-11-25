@@ -99,10 +99,7 @@ A modern campus food ordering platform built with React (Vite) and NestJS.
 
 5. **Start development servers**
    ```bash
-   # Start both frontend and backend
-   npm run dev
-   
-   # Or start them separately:
+   # Start them in separate terminal windows:
    npm run dev:backend  # Backend on http://localhost:3000
    npm run dev:frontend # Frontend on http://localhost:5173
    ```
@@ -189,11 +186,10 @@ VITE_API_URL=  # Leave empty for Vercel (uses /api path)
 |---------|-------------|
 | `npm run install:all` | Install all dependencies |
 | `npm run build` | Build both frontend and backend |
-| `npm run dev` | Start both servers in development |
 | `npm run dev:frontend` | Start frontend dev server |
 | `npm run dev:backend` | Start backend dev server |
 | `npm run lint` | Run linters for both projects |
-| `npm run test` | Run backend tests |
+| `npm run test:backend` | Run backend tests |
 
 ## API Endpoints
 
