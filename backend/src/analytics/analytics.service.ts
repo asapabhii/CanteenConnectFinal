@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { OrderStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { startOfDay, endOfDay, subDays } from 'date-fns';
 

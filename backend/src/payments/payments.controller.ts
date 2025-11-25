@@ -18,6 +18,17 @@ class VerifyPaymentDto {
   razorpay_signature: string;
 }
 
+interface WebhookBody {
+  event?: string;
+  payload?: {
+    payment?: {
+      entity?: {
+        order_id?: string;
+      };
+    };
+  };
+}
+
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
@@ -25,7 +36,7 @@ export class PaymentsController {
   @Post('webhook')
   handleWebhook(
     @Headers('x-razorpay-signature') signature: string,
-    @Body() body: any,
+    @Body() body: WebhookBody,
   ) {
     return this.paymentsService.handleWebhook(signature, body);
   }

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -55,8 +55,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    delete (user as any).password;
-    return user;
+    // Exclude password from the returned user object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+    return result;
   }
 
   updateRole(id: string, role: Role) {

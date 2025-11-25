@@ -63,6 +63,10 @@ model MenuItem {
   orderItems         OrderItem[]
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+
+  @@index([outletId])
+  @@index([isAvailable])
+  @@index([category])
 }
 
 model Order {
@@ -84,6 +88,13 @@ model Order {
   review          Review? // <-- ADD THIS
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([outletId])
+  @@index([status])
+  @@index([slotTime])
+  @@index([createdAt])
+  @@index([paymentMode, status, slotTime])
 }
 
 model OrderItem {
@@ -96,6 +107,9 @@ model OrderItem {
   menuItem           MenuItem @relation(fields: [menuItemId], references: [id])
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([menuItemId])
 }
 
 model Penalty {
@@ -109,6 +123,9 @@ model Penalty {
   order           Order         @relation(fields: [orderId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model Coupon {
@@ -135,6 +152,9 @@ model Review {
   order     Order    @relation(fields: [orderId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([outletId])
 }
 
 

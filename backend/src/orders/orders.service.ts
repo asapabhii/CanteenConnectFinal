@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Coupon, OrderStatus, PaymentMode, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RazorpayService } from 'src/razorpay/razorpay.service';
+import { RazorpayService, RazorpayOrder } from 'src/razorpay/razorpay.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { EventsGateway } from 'src/events/events.gateway';
 
@@ -117,14 +117,14 @@ export class OrdersService {
         dto.paymentMode === PaymentMode.COD
           ? OrderStatus.CONFIRMED
           : OrderStatus.PENDING;
-      let razorpayOrder: any = null;
+      let razorpayOrder: RazorpayOrder | null = null;
       if (dto.paymentMode === PaymentMode.PREPAID && total > 0) {
         try {
           razorpayOrder = await this.razorpay.createOrder(
             total,
             `rcpt_${new Date().getTime()}`,
           );
-        } catch (error) {
+        } catch {
           throw new InternalServerErrorException(
             'Failed to create payment order.',
           );

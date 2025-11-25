@@ -9,7 +9,15 @@ export class UploadsService {
     return new Promise<CloudinaryResponse>((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         (error, result) => {
-          if (error) return reject(error);
+          if (error) {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : typeof error === 'object' && error !== null
+                  ? JSON.stringify(error)
+                  : 'Upload failed';
+            return reject(new Error(errorMessage));
+          }
           resolve(result as CloudinaryResponse);
         },
       );

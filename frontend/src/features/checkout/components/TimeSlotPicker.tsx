@@ -12,7 +12,7 @@ const getNextInterval = () => {
 
 const generateTimeSlots = () => {
   const slots = [];
-  let currentSlot = getNextInterval();
+  const currentSlot = getNextInterval();
   for (let i = 0; i < 8; i++) { // Generate next 8 slots
     slots.push(new Date(currentSlot));
     currentSlot.setMinutes(currentSlot.getMinutes() + 15);

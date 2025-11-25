@@ -17,7 +17,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // We'll use a map to track which user belongs to which socket
   private connectedUsers: Map<string, string> = new Map();
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
 
@@ -35,13 +35,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('authenticate')
   handleAuthentication(client: Socket, userId: string) {
     this.connectedUsers.set(userId, client.id);
-    client.join(userId); // Have the client join a room named after their userId
+    void client.join(userId); // Have the client join a room named after their userId
     console.log(`User ${userId} authenticated and joined their room.`);
   }
 
   @SubscribeMessage('joinOutletRoom')
   handleJoinRoom(client: Socket, outletId: string) {
-    client.join(outletId);
+    void client.join(outletId);
     console.log(`Client ${client.id} joined room for outlet ${outletId}`);
   }
 }
