@@ -1,4 +1,13 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Role, User } from '@prisma/client';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
@@ -30,7 +39,7 @@ export class UsersController {
   findAll(@Query('search') search?: string) {
     return this.usersService.findAll(search);
   }
-  
+
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   @Get(':id')
@@ -56,6 +65,6 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @Patch(':id/assign-outlet')
   assignOutlet(@Param('id') id: string, @Body() dto: AssignOutletDto) {
-      return this.usersService.assignOutlet(id, dto.outletId);
+    return this.usersService.assignOutlet(id, dto.outletId);
   }
 }

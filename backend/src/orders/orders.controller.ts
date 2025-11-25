@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrderStatus, Role, User } from '@prisma/client';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
@@ -8,7 +17,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
 
 class UpdateStatusDto {
-    status: OrderStatus;
+  status: OrderStatus;
 }
 
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -20,7 +29,9 @@ export class OrdersController {
   @Roles(Role.ADMIN)
   @Get('admin/all')
   findAllForAdmin(@Query('search') search?: string) {
-    const where = search ? { id: { contains: search, mode: 'insensitive' as const } } : undefined;
+    const where = search
+      ? { id: { contains: search, mode: 'insensitive' as const } }
+      : undefined;
     return this.ordersService.findAllForAdmin({ where });
   }
 

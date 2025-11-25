@@ -8,7 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwt: JwtService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+  ) {}
 
   async signup(dto: SignupDto) {
     const salt = await bcrypt.genSalt();
@@ -30,8 +33,13 @@ export class AuthService {
       });
       return this.signToken(user.id, user.email);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ForbiddenException('An account with this email or roll number already exists.');
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ForbiddenException(
+          'An account with this email or roll number already exists.',
+        );
       }
       throw error;
     }
@@ -57,18 +65,21 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
-  async signToken(userId: string, email: string): Promise<{ access_token: string }> {
+  async signToken(
+    userId: string,
+    email: string,
+  ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email,
     };
 
     const token = await this.jwt.signAsync(payload, {
-        secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET,
     });
-    
+
     return {
-        access_token: token,
+      access_token: token,
     };
   }
 }

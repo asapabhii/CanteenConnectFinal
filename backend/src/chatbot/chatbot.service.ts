@@ -25,7 +25,8 @@ export class ChatbotService {
 
     if (lowerCaseMessage.includes('help')) {
       return {
-        reply: 'You can ask me about your "order status". More features coming soon!',
+        reply:
+          'You can ask me about your "order status". More features coming soon!',
       };
     }
 

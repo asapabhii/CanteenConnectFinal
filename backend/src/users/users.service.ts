@@ -12,9 +12,21 @@ export class UsersService {
         ? {
             OR: [
               { email: { contains: searchQuery, mode: 'insensitive' } },
-              { profile: { name: { contains: searchQuery, mode: 'insensitive' } } },
-              { profile: { rollNumber: { contains: searchQuery, mode: 'insensitive' } } },
-              { profile: { facultyId: { contains: searchQuery, mode: 'insensitive' } } },
+              {
+                profile: {
+                  name: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
+              {
+                profile: {
+                  rollNumber: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
+              {
+                profile: {
+                  facultyId: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
             ],
           }
         : undefined,
@@ -54,7 +66,7 @@ export class UsersService {
   async toggleBlock(id: string) {
     const userToUpdate = await this.prisma.user.findUnique({ where: { id } });
     if (!userToUpdate) throw new NotFoundException('User not found');
-    
+
     return this.prisma.user.update({
       where: { id },
       data: { isBlocked: !userToUpdate.isBlocked },

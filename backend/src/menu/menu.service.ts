@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMenuItemDto, UpdateMenuItemDto } from './dto/menu-item.dto';
@@ -24,7 +28,7 @@ export class MenuService {
       throw new ForbiddenException('User is not assigned to an outlet');
     }
     return this.prisma.menuItem.findMany({
-      where: { 
+      where: {
         outletId: vendor.outletId,
         isAvailable: true, // The only difference is this line
       },
@@ -40,12 +44,14 @@ export class MenuService {
       data: { ...dto, outletId: vendor.outletId },
     });
   }
-  
+
   async update(vendor: User, itemId: string, dto: UpdateMenuItemDto) {
     if (!vendor.outletId) {
       throw new ForbiddenException('User is not assigned to an outlet');
     }
-    const item = await this.prisma.menuItem.findUnique({ where: { id: itemId } });
+    const item = await this.prisma.menuItem.findUnique({
+      where: { id: itemId },
+    });
     if (!item || item.outletId !== vendor.outletId) {
       throw new NotFoundException('Menu item not found or access denied');
     }
@@ -59,7 +65,9 @@ export class MenuService {
     if (!vendor.outletId) {
       throw new ForbiddenException('User is not assigned to an outlet');
     }
-    const item = await this.prisma.menuItem.findUnique({ where: { id: itemId } });
+    const item = await this.prisma.menuItem.findUnique({
+      where: { id: itemId },
+    });
     if (!item || item.outletId !== vendor.outletId) {
       throw new NotFoundException('Menu item not found or access denied');
     }
@@ -70,7 +78,9 @@ export class MenuService {
     if (!vendor.outletId) {
       throw new ForbiddenException('User is not assigned to an outlet');
     }
-    const item = await this.prisma.menuItem.findUnique({ where: { id: itemId } });
+    const item = await this.prisma.menuItem.findUnique({
+      where: { id: itemId },
+    });
     if (!item || item.outletId !== vendor.outletId) {
       throw new NotFoundException('Menu item not found or access denied');
     }

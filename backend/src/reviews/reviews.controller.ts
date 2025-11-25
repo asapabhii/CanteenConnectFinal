@@ -22,7 +22,7 @@ export class ReviewsController {
   create(@GetUser() user: User, @Body() dto: CreateReviewDto) {
     return this.reviewsService.create(user, dto);
   }
-  
+
   @Roles(Role.VENDOR)
   @Get('my-outlet')
   findForVendor(@GetUser() vendor: User) {

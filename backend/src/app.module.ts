@@ -24,17 +24,17 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { EventsModule } from './events/events.module';
 import { SearchModule } from './search/search.module';
 
-
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     // CORRECTED CONFIGURATION
-    ThrottlerModule.forRoot([{ 
-      ttl: 60000, // 60 seconds in milliseconds
-      limit: 20,  // 20 requests per IP per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds in milliseconds
+        limit: 20, // 20 requests per IP per minute
+      },
+    ]),
     PrismaModule,
     AuthModule,
     UsersModule,

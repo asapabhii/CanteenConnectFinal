@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { EventsGateway } from 'src/events/events.gateway';
@@ -53,11 +57,15 @@ export class DeliveryService {
       where: { id: orderId },
       data: { status: newStatus },
     });
-    
+
     // Emit to vendor's outlet room
-    this.eventsGateway.server.to(updatedOrder.outletId).emit('orderUpdate', updatedOrder);
+    this.eventsGateway.server
+      .to(updatedOrder.outletId)
+      .emit('orderUpdate', updatedOrder);
     // Emit to the specific customer's room
-    this.eventsGateway.server.to(updatedOrder.userId).emit('orderUpdate', updatedOrder);
+    this.eventsGateway.server
+      .to(updatedOrder.userId)
+      .emit('orderUpdate', updatedOrder);
 
     return updatedOrder;
   }
@@ -73,7 +81,9 @@ export class DeliveryService {
       throw new NotFoundException('Order not found or access denied');
     }
     if (order.status === 'COMPLETED' || order.status === 'CANCELLED') {
-      throw new ForbiddenException(`Cannot cancel an order with status: ${order.status}`);
+      throw new ForbiddenException(
+        `Cannot cancel an order with status: ${order.status}`,
+      );
     }
     const cancelledOrder = await this.prisma.order.update({
       where: { id: orderId },
@@ -81,10 +91,14 @@ export class DeliveryService {
     });
 
     // Emit to vendor's outlet room
-    this.eventsGateway.server.to(cancelledOrder.outletId).emit('orderUpdate', cancelledOrder);
+    this.eventsGateway.server
+      .to(cancelledOrder.outletId)
+      .emit('orderUpdate', cancelledOrder);
     // Emit to the specific customer's room
-    this.eventsGateway.server.to(cancelledOrder.userId).emit('orderUpdate', cancelledOrder);
-    
+    this.eventsGateway.server
+      .to(cancelledOrder.userId)
+      .emit('orderUpdate', cancelledOrder);
+
     return cancelledOrder;
   }
 }
