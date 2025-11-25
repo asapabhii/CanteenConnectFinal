@@ -126,7 +126,7 @@ export class OrdersService {
           );
         } catch {
           throw new InternalServerErrorException(
-            'Failed to create payment order.',
+            'Failed to create Razorpay payment order. Please verify payment service configuration and try again.',
           );
         }
       }
