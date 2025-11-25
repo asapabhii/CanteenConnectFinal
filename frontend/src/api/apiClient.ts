@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// Use relative path for API calls - this works with Vercel rewrites
+// and local development with Vite proxy
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 apiClient.interceptors.request.use(
