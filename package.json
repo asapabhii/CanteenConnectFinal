@@ -1,0 +1,19 @@
+{
+  "name": "canteen-connect",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Canteen Connect - Campus food ordering platform",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "test": "cd backend && npm run test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
