@@ -2,6 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Razorpay from 'razorpay';
 
+export interface RazorpayOrder {
+  id: string;
+  entity: string;
+  amount: number;
+  amount_paid: number;
+  amount_due: number;
+  currency: string;
+  receipt: string;
+  status: string;
+  attempts: number;
+  created_at: number;
+}
+
 @Injectable()
 export class RazorpayService {
   private razorpay: Razorpay;
@@ -13,12 +26,12 @@ export class RazorpayService {
     });
   }
 
-  async createOrder(amount: number, receiptId: string) {
+  async createOrder(amount: number, receiptId: string): Promise<RazorpayOrder> {
     const options = {
       amount: amount * 100, // Amount in the smallest currency unit (paise)
       currency: 'INR',
       receipt: receiptId,
     };
-    return this.razorpay.orders.create(options);
+    return this.razorpay.orders.create(options) as Promise<RazorpayOrder>;
   }
 }

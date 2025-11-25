@@ -28,25 +28,40 @@ export class TasksService {
       },
     });
 
-    for (const order of uncollectedOrders) {
-      this.logger.log(`Penalizing order ${order.id} for user ${order.userId}`);
-
-      // Use a transaction to ensure both actions succeed or fail together
-      await this.prisma.$transaction([
-        // 1. Create the penalty record
-        this.prisma.penalty.create({
-          data: {
-            amount: order.total,
-            orderId: order.id,
-            userId: order.userId,
-          },
-        }),
-        // 2. Block the user
-        this.prisma.user.update({
-          where: { id: order.userId },
-          data: { isBlocked: true },
-        }),
-      ]);
+    if (uncollectedOrders.length === 0) {
+      this.logger.log('No uncollected COD orders found.');
+      return;
     }
+
+    // Process all orders in a single transaction for better performance
+    const penaltyCreateOperations = uncollectedOrders.map((order) =>
+      this.prisma.penalty.create({
+        data: {
+          amount: order.total,
+          orderId: order.id,
+          userId: order.userId,
+        },
+      }),
+    );
+
+    // Get unique user IDs to block
+    const userIdsToBlock = [
+      ...new Set(uncollectedOrders.map((order) => order.userId)),
+    ];
+    const userBlockOperations = userIdsToBlock.map((userId) =>
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { isBlocked: true },
+      }),
+    );
+
+    await this.prisma.$transaction([
+      ...penaltyCreateOperations,
+      ...userBlockOperations,
+    ]);
+
+    this.logger.log(
+      `Penalized ${uncollectedOrders.length} orders and blocked ${userIdsToBlock.length} users.`,
+    );
   }
 }

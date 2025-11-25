@@ -43,7 +43,7 @@ export const useCartStore = create<CartState>()(
           (cartItem) => cartItem.item.id === newItem.id,
         );
 
-        let updatedItems = [...currentItems];
+        const updatedItems = [...currentItems];
 
         if (existingItemIndex > -1) {
           const updatedItem = {

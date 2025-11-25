@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderStatus, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -6,7 +10,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(user: User, dto: { orderId: string; rating: number; comment?: string }) {
+  async create(
+    user: User,
+    dto: { orderId: string; rating: number; comment?: string },
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: dto.orderId },
       include: { review: true },
@@ -21,7 +28,7 @@ export class ReviewsService {
     if (order.review) {
       throw new ForbiddenException('This order has already been reviewed.');
     }
-    
+
     return this.prisma.review.create({
       data: {
         rating: dto.rating,

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -12,9 +12,21 @@ export class UsersService {
         ? {
             OR: [
               { email: { contains: searchQuery, mode: 'insensitive' } },
-              { profile: { name: { contains: searchQuery, mode: 'insensitive' } } },
-              { profile: { rollNumber: { contains: searchQuery, mode: 'insensitive' } } },
-              { profile: { facultyId: { contains: searchQuery, mode: 'insensitive' } } },
+              {
+                profile: {
+                  name: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
+              {
+                profile: {
+                  rollNumber: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
+              {
+                profile: {
+                  facultyId: { contains: searchQuery, mode: 'insensitive' },
+                },
+              },
             ],
           }
         : undefined,
@@ -43,8 +55,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    delete (user as any).password;
-    return user;
+    // Exclude password from the returned user object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
+    return result;
   }
 
   updateRole(id: string, role: Role) {
@@ -54,7 +68,7 @@ export class UsersService {
   async toggleBlock(id: string) {
     const userToUpdate = await this.prisma.user.findUnique({ where: { id } });
     if (!userToUpdate) throw new NotFoundException('User not found');
-    
+
     return this.prisma.user.update({
       where: { id },
       data: { isBlocked: !userToUpdate.isBlocked },

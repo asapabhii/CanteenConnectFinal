@@ -4,6 +4,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule], // <-- ADD THIS
-  providers: [TasksService]
+  providers: [TasksService],
 })
 export class TasksModule {}

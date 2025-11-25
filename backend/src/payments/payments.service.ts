@@ -1,9 +1,26 @@
-import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as crypto from 'crypto';
 import { EventsGateway } from 'src/events/events.gateway';
 import { User } from '@prisma/client';
+import { RazorpayService } from 'src/razorpay/razorpay.service';
+
+interface WebhookBody {
+  event?: string;
+  payload?: {
+    payment?: {
+      entity?: {
+        order_id?: string;
+      };
+    };
+  };
+}
 
 @Injectable()
 export class PaymentsService {
@@ -11,10 +28,14 @@ export class PaymentsService {
     private prisma: PrismaService,
     private config: ConfigService,
     private eventsGateway: EventsGateway,
+    private razorpay: RazorpayService,
   ) {}
 
-  async handleWebhook(signature: string, body: any) {
-    const secret = this.config.get('RAZORPAY_KEY_SECRET');
+  async handleWebhook(signature: string, body: WebhookBody) {
+    const secret = this.config.get<string>('RAZORPAY_KEY_SECRET');
+    if (!secret) {
+      throw new BadRequestException('Razorpay secret not configured');
+    }
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(JSON.stringify(body))
@@ -25,7 +46,10 @@ export class PaymentsService {
     }
 
     if (body.event === 'payment.captured') {
-      const razorpayOrderId = body.payload.payment.entity.order_id;
+      const razorpayOrderId = body.payload?.payment?.entity?.order_id;
+      if (!razorpayOrderId) {
+        throw new BadRequestException('Missing order ID in webhook payload');
+      }
       const order = await this.prisma.order.update({
         where: { razorpayOrderId: razorpayOrderId },
         data: { status: 'CONFIRMED' },
@@ -38,19 +62,29 @@ export class PaymentsService {
     return { status: 'ok' };
   }
 
-  async verifyPayment(dto: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; }) {
-    const secret = this.config.get('RAZORPAY_KEY_SECRET');
-    const body = dto.razorpay_order_id + "|" + dto.razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', secret).update(body.toString()).digest('hex');
+  async verifyPayment(dto: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) {
+    const secret = this.config.get<string>('RAZORPAY_KEY_SECRET');
+    if (!secret) {
+      throw new BadRequestException('Razorpay secret not configured');
+    }
+    const body = dto.razorpay_order_id + '|' + dto.razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(body.toString())
+      .digest('hex');
 
     if (expectedSignature === dto.razorpay_signature) {
       const order = await this.prisma.order.update({
         where: { razorpayOrderId: dto.razorpay_order_id },
         data: { status: 'CONFIRMED' },
       });
-      
+
       this.eventsGateway.server.to(order.outletId).emit('newOrder', order);
-      
+
       return { status: 'success', orderId: order.id };
     } else {
       throw new BadRequestException('Invalid payment signature');
@@ -76,17 +110,11 @@ export class PaymentsService {
       throw new ForbiddenException('This penalty has already been paid.');
     }
 
-    const razorpay = new (require('razorpay'))({
-        key_id: this.config.get('RAZORPAY_KEY_ID'),
-        key_secret: this.config.get('RAZORPAY_KEY_SECRET'),
-    });
+    const razorpayOrder = await this.razorpay.createOrder(
+      penalty.amount,
+      `penalty_${penalty.id}`,
+    );
 
-    const razorpayOrder = await razorpay.orders.create({
-        amount: penalty.amount * 100,
-        currency: 'INR',
-        receipt: `penalty_${penalty.id}`
-    });
-    
     await this.prisma.penalty.update({
       where: { id: penaltyId },
       data: { razorpayOrderId: razorpayOrder.id },
@@ -95,10 +123,20 @@ export class PaymentsService {
     return razorpayOrder;
   }
 
-  async verifyPenaltyPayment(dto: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string; }) {
-    const secret = this.config.get('RAZORPAY_KEY_SECRET');
-    const body = dto.razorpay_order_id + "|" + dto.razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', secret).update(body.toString()).digest('hex');
+  async verifyPenaltyPayment(dto: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) {
+    const secret = this.config.get<string>('RAZORPAY_KEY_SECRET');
+    if (!secret) {
+      throw new BadRequestException('Razorpay secret not configured');
+    }
+    const body = dto.razorpay_order_id + '|' + dto.razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(body.toString())
+      .digest('hex');
 
     if (expectedSignature === dto.razorpay_signature) {
       const penalty = await this.prisma.penalty.findUnique({

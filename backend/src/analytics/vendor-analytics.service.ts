@@ -1,5 +1,5 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import { OrderStatus, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { startOfDay, endOfDay } from 'date-fns';
 
@@ -73,12 +73,19 @@ export class VendorAnalyticsService {
     };
   }
 
-  async getVendorEarningsReport(vendor: User, startDate?: Date, endDate?: Date) {
+  async getVendorEarningsReport(
+    vendor: User,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
     if (!vendor.outletId) {
       throw new ForbiddenException('User is not assigned to an outlet');
     }
     const outletId = vendor.outletId;
-    const dateFilter = startDate && endDate ? { createdAt: { gte: startDate, lte: endDate } } : {};
+    const dateFilter =
+      startDate && endDate
+        ? { createdAt: { gte: startDate, lte: endDate } }
+        : {};
 
     const aggregates = await this.prisma.order.aggregate({
       _sum: { total: true },

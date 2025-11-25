@@ -10,7 +10,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private prisma: PrismaService,
     private config: ConfigService,
   ) {
-    const secret = config.get('JWT_SECRET');
+    const secret = config.get<string>('JWT_SECRET');
 
     if (!secret) {
       throw new Error('JWT_SECRET not set in environment file');
@@ -27,13 +27,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       where: {
         id: payload.sub,
       },
+      include: {
+        profile: true,
+      },
     });
 
     if (!user) {
       throw new UnauthorizedException();
     }
 
-    const { password, ...result } = user;
+    // Exclude password from the returned user object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
     return result;
   }
 }

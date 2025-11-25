@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
@@ -29,9 +38,13 @@ export class MenuController {
   create(@GetUser() vendor: User, @Body() dto: CreateMenuItemDto) {
     return this.menuService.create(vendor, dto);
   }
-  
+
   @Patch(':id')
-  update(@GetUser() vendor: User, @Param('id') id: string, @Body() dto: UpdateMenuItemDto) {
+  update(
+    @GetUser() vendor: User,
+    @Param('id') id: string,
+    @Body() dto: UpdateMenuItemDto,
+  ) {
     return this.menuService.update(vendor, id, dto);
   }
 

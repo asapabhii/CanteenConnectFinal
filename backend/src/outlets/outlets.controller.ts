@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Patch, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { OutletsService } from './outlets.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
@@ -38,10 +48,7 @@ export class OutletsController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-    @Query('category') category?: ItemCategory,
-  ) {
+  findOne(@Param('id') id: string, @Query('category') category?: ItemCategory) {
     return this.outletsService.findOne(id, category);
   }
 

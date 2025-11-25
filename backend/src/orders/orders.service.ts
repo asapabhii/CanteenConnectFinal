@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Coupon, OrderStatus, PaymentMode, Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RazorpayService } from 'src/razorpay/razorpay.service';
+import { RazorpayService, RazorpayOrder } from 'src/razorpay/razorpay.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { EventsGateway } from 'src/events/events.gateway';
 
@@ -61,16 +61,24 @@ export class OrdersService {
   // --- CUSTOMER METHODS ---
   async placeOrder(user: User, dto: CreateOrderDto) {
     if (user.isBlocked) {
-      throw new ForbiddenException('Account is blocked due to an unpaid penalty.');
+      throw new ForbiddenException(
+        'Account is blocked due to an unpaid penalty.',
+      );
     }
     const menuItemIds = dto.items.map((item) => item.menuItemId);
     const menuItems = await this.prisma.menuItem.findMany({
-      where: { id: { in: menuItemIds }, outletId: dto.outletId, isAvailable: true },
+      where: {
+        id: { in: menuItemIds },
+        outletId: dto.outletId,
+        isAvailable: true,
+      },
     });
     if (menuItems.length !== menuItemIds.length) {
-      throw new BadRequestException('Some menu items are invalid or unavailable.');
+      throw new BadRequestException(
+        'Some menu items are invalid or unavailable.',
+      );
     }
-    const menuItemsMap = new Map(menuItems.map(item => [item.id, item]));
+    const menuItemsMap = new Map(menuItems.map((item) => [item.id, item]));
     let total = 0;
     for (const item of dto.items) {
       total += menuItemsMap.get(item.menuItemId)!.price * item.quantity;
@@ -80,7 +88,11 @@ export class OrdersService {
       validCoupon = await this.prisma.coupon.findUnique({
         where: { code: dto.couponCode.toUpperCase() },
       });
-      if (!validCoupon || !validCoupon.isActive || (validCoupon.expiresAt && validCoupon.expiresAt < new Date())) {
+      if (
+        !validCoupon ||
+        !validCoupon.isActive ||
+        (validCoupon.expiresAt && validCoupon.expiresAt < new Date())
+      ) {
         throw new BadRequestException('Invalid or expired coupon code.');
       }
     }
@@ -91,7 +103,9 @@ export class OrdersService {
     }
     return this.prisma.$transaction(async (tx) => {
       const slotTime = new Date(dto.slotTime);
-      const outlet = await tx.outlet.findUnique({ where: { id: dto.outletId } });
+      const outlet = await tx.outlet.findUnique({
+        where: { id: dto.outletId },
+      });
       if (!outlet) throw new NotFoundException('Outlet not found');
       const existingOrdersCount = await tx.order.count({
         where: { outletId: dto.outletId, slotTime: slotTime },
@@ -99,15 +113,21 @@ export class OrdersService {
       if (existingOrdersCount >= outlet.maxOrdersPerSlot) {
         throw new ConflictException('Selected time slot is full.');
       }
-      const initialStatus = dto.paymentMode === PaymentMode.COD 
-        ? OrderStatus.CONFIRMED 
-        : OrderStatus.PENDING;
-      let razorpayOrder: any = null; 
+      const initialStatus =
+        dto.paymentMode === PaymentMode.COD
+          ? OrderStatus.CONFIRMED
+          : OrderStatus.PENDING;
+      let razorpayOrder: RazorpayOrder | null = null;
       if (dto.paymentMode === PaymentMode.PREPAID && total > 0) {
         try {
-          razorpayOrder = await this.razorpay.createOrder(total, `rcpt_${new Date().getTime()}`);
-        } catch (error) {
-          throw new InternalServerErrorException('Failed to create payment order.');
+          razorpayOrder = await this.razorpay.createOrder(
+            total,
+            `rcpt_${new Date().getTime()}`,
+          );
+        } catch {
+          throw new InternalServerErrorException(
+            'Failed to create Razorpay payment order. Please verify payment service configuration and try again.',
+          );
         }
       }
       const order = await tx.order.create({
